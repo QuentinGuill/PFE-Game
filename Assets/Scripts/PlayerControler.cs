@@ -21,7 +21,13 @@ public class PlayerControler : MonoBehaviour
         sprite.transform.position = new Vector2(this.transform.position.x + this.lastDirection.x, this.transform.position.y + this.lastDirection.y);
         sprite.transform.localScale = Vector2.one;
         Debug.Log(hit.collider);
-        Debug.Log(lastDirection);
+        if (hit.collider != null)
+        {
+            if(hit.collider.GetComponentInParent<IEntity>() != null)
+            {
+                hit.collider.GetComponentInParent<IEntity>().takeDamage(1);
+            }
+        }
     }
 
     /*public void OnLook(InputValue value) {

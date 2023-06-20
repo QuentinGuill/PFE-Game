@@ -2,22 +2,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Pot : Entity
+public class Pot : MonoBehaviour, IEntity
 {
     private bool is_dead;
 
-    public override void die()
+    public void die()
     {
-        throw new System.NotImplementedException();
+        this.is_dead = true;
+        lootItem();
     }
 
-    public override bool isDead()
+    private void lootItem()
     {
-        throw new System.NotImplementedException();
+        GameObject drop = (GameObject)Instantiate(Resources.Load("Drop/Drop"), new Vector3(this.transform.position.x, this.transform.position.y, 0f), Quaternion.identity);
+        drop.GetComponent<Drop>().setItem(new Shards());
+        drop.GetComponent<Drop>().setAmount(3);
     }
 
-    public override void takeDamage(int damage)
+    public bool isDead()
     {
-        throw new System.NotImplementedException();
+        return is_dead;
+    }
+
+    public void takeDamage(int damage)
+    {
+        this.die();
     }
 }

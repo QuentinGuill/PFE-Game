@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-abstract public class Entity
+public interface IEntity
 {
-    public abstract void takeDamage(int damage);
+    public void takeDamage(int damage);
 
-    public abstract void die();
+    public void die();
 
-    public abstract bool isDead();
+    public bool isDead();
 }

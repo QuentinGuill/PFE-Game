@@ -6,21 +6,16 @@ using UnityEngine.InputSystem;
 public class PlayerControler : MonoBehaviour
 {
     private Vector2 movementInput;
-    private Vector2 lookInput;
     private float speed = 5f;
     private Rigidbody2D rigBody2D;
     private Camera cam;
     private Vector2 lastDirection;
-    public GameObject sprite;
 
     public void OnFire()
     {
         LayerMask mask = LayerMask.GetMask("Ennemy");
         ContactFilter2D filter2D = new ContactFilter2D().NoFilter();
         RaycastHit2D hit = Physics2D.BoxCast(new Vector2(this.transform.position.x + this.lastDirection.x, this.transform.position.y + this.lastDirection.y), Vector2.one, 0.0f, lastDirection, 1f, mask);
-        sprite.transform.position = new Vector2(this.transform.position.x + this.lastDirection.x, this.transform.position.y + this.lastDirection.y);
-        sprite.transform.localScale = Vector2.one;
-        Debug.Log(hit.collider);
         if (hit.collider != null)
         {
             if(hit.collider.GetComponentInParent<IEntity>() != null)

@@ -30,8 +30,8 @@ public class EntityManager : MonoBehaviour
         {
             if(e.GetComponent<IEntity>().isDead())
             {
-                Destroy(e);
                 entities.Remove(e);
+                Destroy(e);
             }
         }
     }

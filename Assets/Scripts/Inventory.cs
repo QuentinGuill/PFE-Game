@@ -1,6 +1,10 @@
+using PlayFab;
+using PlayFab.ClientModels;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Inventory : MonoBehaviour
 {
@@ -13,11 +17,19 @@ public class Inventory : MonoBehaviour
     private int ColumnLength;
     private int RowHeight;
 
+    [SerializeField]
+    private List<Text> slots;
+    [SerializeField]
+    private Text emeraldsAmount;
+
+    private GetUserInventoryResult PFInventory;
+
     void Awake()
     {
         ColumnLength = 3;
         RowHeight = 3;
         inventory = new InventorySlot[ColumnLength, RowHeight];
+        PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(), OnInventoryUpdateSuccess, OnInventoryUpdateError);
     }
 
     private void FixedUpdate()
@@ -29,29 +41,40 @@ public class Inventory : MonoBehaviour
         {
             if (hit.collider.GetComponentInParent<Drop>() != null)
             {
-                Debug.Log("Item picked up!");
                 int res = this.addItem(hit.collider.GetComponentInParent<Drop>().GetItem(), hit.collider.GetComponentInParent<Drop>().getAmount());
                 if (res > 0)
                 {
                     hit.collider.GetComponentInParent<Drop>().setAmount(res);
+                    PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(), OnInventoryUpdateSuccess, OnInventoryUpdateError);
                 }
                 else
                 {
                     Destroy(hit.transform.gameObject);
                 }
+                this.updateInventoryDisplay();
             }
         }
+    }
+
+    private void OnInventoryUpdateError(PlayFabError result)
+    {
+        Debug.Log("error: " + result);
+    }
+
+    private void OnInventoryUpdateSuccess(GetUserInventoryResult result)
+    {
+        this.PFInventory = result;
     }
 
     public Vector2 hasItem(string name)
     {
         Vector2 itemPos = new Vector2(-1, -1);
 
-        for(int i = 0; i < ColumnLength-1; i++)
+        for(int i = 0; i < ColumnLength; i++)
         {
-            for (int j = 0; j < RowHeight - 1; j++)
+            for (int j = 0; j < RowHeight; j++)
             {
-                if (slotContainsItem(inventory[i, j]))
+                if (slotContainsItem(inventory[i, j], name))
                 {
                     itemPos = new Vector2(i, j);
                 }
@@ -61,7 +84,7 @@ public class Inventory : MonoBehaviour
         return itemPos;
     }
 
-    private bool slotContainsItem(InventorySlot slot)
+    private bool slotContainsItem(InventorySlot slot, string name)
     {
         bool slotContainsItem = false;
 
@@ -81,25 +104,25 @@ public class Inventory : MonoBehaviour
 
     public Vector2 findFirstEmptySlot()
     {
-        Vector2 firstSlot = new Vector2(-1, -1);
-
-        for (int i = 0; i < ColumnLength - 1; i++)
+        for (int i = 0; i < ColumnLength; i++)
         {
-            for (int j = 0; j < RowHeight - 1; j++)
+            for (int j = 0; j < RowHeight; j++)
             {
                 if (inventory[i,j].item == null)
                 {
-                    firstSlot = new Vector2(i, j);
+                    Debug.Log("The first empty slot is " + i + ", " + j);
+                    return (new Vector2(i, j));
                 }
             }
         }
 
-        return firstSlot;
+        return (new Vector2(-1, -1));
     }
 
     public int addItem(Item item, int amount)
     {
         Vector2 itemPos = hasItem(item.getName());
+        Debug.Log(item.getName());
 
         if (itemPos == new Vector2(-1,-1))
         {
@@ -141,6 +164,25 @@ public class Inventory : MonoBehaviour
             inventory[i, j].item = null;
             inventory[i, j].stack = 0;
             return true;
+        }
+    }
+
+    private void updateInventoryDisplay()
+    {
+        emeraldsAmount.text = PFInventory.VirtualCurrency["EM"].ToString();
+        for (int i = 0; i < ColumnLength; i++)
+        {
+            for (int j = 0; j < RowHeight; j++)
+            {
+                if (inventory[i, j].item == null)
+                {
+                    slots[i * 3 + j].text = "Empty";
+                }
+                else
+                {
+                    slots[i * 3 + j].text = inventory[i, j].item.getName() + " x" + inventory[i, j].stack;
+                }
+            }
         }
     }
 }

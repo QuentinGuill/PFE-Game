@@ -10,6 +10,11 @@ public class PlayerControler : MonoBehaviour
     private Rigidbody2D rigBody2D;
     private Camera cam;
     private Vector2 lastDirection;
+    private PlayerInput pi;
+    [SerializeField]
+    private SpriteRenderer playerSprite;
+    [SerializeField]
+    private GameObject inventory;
 
     public void OnFire()
     {
@@ -40,7 +45,7 @@ public class PlayerControler : MonoBehaviour
             if(Mathf.Abs(movementInput.y) > Mathf.Abs(movementInput.x))
             {
                 lastDirection.x = 0;
-                if(movementInput.y < 0)
+                if (movementInput.y < 0)
                 {
                     lastDirection.y = -1;
                 }
@@ -54,19 +59,36 @@ public class PlayerControler : MonoBehaviour
                 lastDirection.y = 0;
                 if (movementInput.x < 0)
                 {
+                    playerSprite.flipX = true;
                     lastDirection.x = -1;
                 }
                 else
                 {
+                    playerSprite.flipX = false;
                     lastDirection.x = 1;
                 }
             }
         }
     }
 
+    public void OnInventory(InputValue value)
+    {
+        if(pi.currentActionMap.name == "Player")
+        {
+            pi.SwitchCurrentActionMap("Inventory");
+            inventory.SetActive(true);
+        }
+        else
+        {
+            pi.SwitchCurrentActionMap("Player");
+            inventory.SetActive(false);
+        }
+    }
+
     void Awake() {
         this.rigBody2D = this.GetComponent<Rigidbody2D>();
         this.cam = this.GetComponentInChildren<Camera>();
+        this.pi = this.GetComponent<PlayerInput>();
     }
 
     void FixedUpdate() {

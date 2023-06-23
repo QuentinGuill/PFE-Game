@@ -45,12 +45,12 @@ public class Inventory : MonoBehaviour
                 if (res > 0)
                 {
                     hit.collider.GetComponentInParent<Drop>().setAmount(res);
-                    PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(), OnInventoryUpdateSuccess, OnInventoryUpdateError);
                 }
                 else
                 {
                     Destroy(hit.transform.gameObject);
                 }
+                PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(), OnInventoryUpdateSuccess, OnInventoryUpdateError);
                 this.updateInventoryDisplay();
             }
         }

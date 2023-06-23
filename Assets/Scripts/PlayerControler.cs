@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerControler : MonoBehaviour
+public class PlayerControler : MonoBehaviour, IEntity
 {
     private Vector2 movementInput;
     private float speed = 5f;
@@ -11,6 +11,9 @@ public class PlayerControler : MonoBehaviour
     private Camera cam;
     private Vector2 lastDirection;
     private PlayerInput pi;
+    private HealthBar hb;
+    private bool isdead = false;
+
     [SerializeField]
     private SpriteRenderer playerSprite;
     [SerializeField]
@@ -89,9 +92,29 @@ public class PlayerControler : MonoBehaviour
         this.rigBody2D = this.GetComponent<Rigidbody2D>();
         this.cam = this.GetComponentInChildren<Camera>();
         this.pi = this.GetComponent<PlayerInput>();
+        this.hb = new HealthBar(10);
     }
 
     void FixedUpdate() {
         rigBody2D.MovePosition(this.transform.position + (new Vector3(movementInput.x, movementInput.y, 0f) * speed * Time.deltaTime));
+        if(hb.isDead())
+        {
+            die();
+        }
+    }
+
+    public void takeDamage(int damage)
+    {
+        this.hb.changeHp(damage);
+    }
+
+    public void die()
+    {
+        isdead = true;
+    }
+
+    public bool isDead()
+    {
+        return isdead;
     }
 }
